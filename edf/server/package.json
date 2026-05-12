@@ -1,44 +1,36 @@
 {
-  "type": "module",
-  "name": "dev3-backend-tp1",
+  "name": "server",
   "version": "1.0.0",
-  "description": "backend_TP01",
-  "main": "index.js",
+  "main": "dist/server.js",
+  "type": "module",
   "scripts": {
-    "test": "npm run build && node --test dist/middlewares/checkIdParam.test.js",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node --dns-result-order=ipv4first dist/server.js",
-    "dev": "tsx watch src/server.ts"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/express-serve-static-core": "^5.1.1",
-    "@types/node": "^25.5.0",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8",
-    "sequelize-cli": "^6.6.5",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "start": "node dist/server.js"
   },
   "dependencies": {
-    "@types/http-auth": "^4.1.4",
-    "@types/jsonwebtoken": "^9.0.10",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "http-auth": "^4.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "pg": "^8.20.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
-    "sqlite3": "^5.0.2",
+    "sequelize": "^6.37.3",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.12.7",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5"
   }
 }
