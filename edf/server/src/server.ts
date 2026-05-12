@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import ledRoutes from "./routes/ledRoutes.js";
 import { requestLogger } from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import sequelize from "./config/database.js";
@@ -21,6 +22,7 @@ app.use(express.static("public"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(authRoutes);
+app.use(ledRoutes);
 app.use(userRoutes);
 
 app.get("/", (_req, res) => {
@@ -30,19 +32,26 @@ app.get("/", (_req, res) => {
 app.use(errorHandler);
 
 async function seedInitialUsers() {
-  const count = await User.count();
+  try {
+    const count = await User.count();
 
-  if (count > 0) {
-    return;
+    if (count > 0) {
+      return;
+    }
+
+    await User.bulkCreate([
+      { nom: "Dupont", prenom: "Jean", role: "student", isActive: true },
+      { nom: "Martin", prenom: "Sophie", role: "student", isActive: false },
+      { nom: "Durand", prenom: "Claire", role: "teacher", isActive: true },
+    ]);
+
+    console.log("Utilisateurs de démonstration insérés en base.");
+  } catch (err) {
+    console.warn(
+      "Seed Sequelize users ignoré (schéma PostgreSQL edf/db.sql ≠ modèle TP User).",
+      err instanceof Error ? err.message : err,
+    );
   }
-
-  await User.bulkCreate([
-    { nom: "Dupont", prenom: "Jean", role: "student", isActive: true },
-    { nom: "Martin", prenom: "Sophie", role: "student", isActive: false },
-    { nom: "Durand", prenom: "Claire", role: "teacher", isActive: true },
-  ]);
-
-  console.log("Utilisateurs de démonstration insérés en base.");
 }
 
 try {
