@@ -21,19 +21,7 @@ services:
   # -------------------------
   # API BACKEND
   # -------------------------
-  api:
-    image: image_api
-    container_name: api_lan
-    restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: Gougougagaklemdpdefoula
-      POSTGRES_DB: EdfDb
-    depends_on:
-      - db
-    networks:
-      - dbapi
-      - apiReverseProx   # pour que Traefik DMZ puisse y accéder
+
 
   # -------------------------
   # ELK STACK
