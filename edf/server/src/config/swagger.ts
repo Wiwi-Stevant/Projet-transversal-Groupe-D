@@ -4,9 +4,23 @@ const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "API du Site",
+      title: "API EDF — Backend",
       version: "1.0.0",
+      description:
+        "Documentation OpenAPI du backend (authentification, utilisateurs, appareil : LED, seuil d’activité). " +
+        "Interface Swagger UI : `GET /api-docs`.",
     },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Développement local (variable `PORT` du serveur)",
+      },
+    ],
+    tags: [
+      { name: "Authentication", description: "Basic, Digest, JWT (login, refresh, profil)" },
+      { name: "Users", description: "Gestion des utilisateurs" },
+      { name: "Device", description: "LED et seuil d’activité (`config` PostgreSQL)" },
+    ],
     components: {
       securitySchemes: {
         basicAuth: {
@@ -26,8 +40,12 @@ const swaggerOptions = {
     },
   },
 
-  apis: ["./src/routes/*.ts"],
+  apis: [
+    "./src/routes/authRoutes.ts",
+    "./src/routes/userRoutes.ts",
+    "./src/routes/ledRoutes.ts",
+    "./src/routes/thresholdRoutes.ts",
+  ],
 };
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
