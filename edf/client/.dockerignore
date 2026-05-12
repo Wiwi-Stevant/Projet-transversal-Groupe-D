@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+.next
+.nuxt
+out
+coverage
+
+.git
+.idea
+.vscode
+
+.env
+.env.*
+
+*.log
+
