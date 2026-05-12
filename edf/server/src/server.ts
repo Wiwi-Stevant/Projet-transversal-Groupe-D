@@ -7,6 +7,7 @@ import bcrypt from "bcrypt"; // Importé pour le seed
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ledRoutes from "./routes/ledRoutes.js";
+import thresholdRoutes from "./routes/thresholdRoutes.js";
 import { requestLogger } from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import sequelize from "./config/database.js";
@@ -34,6 +35,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(authRoutes);
 app.use(ledRoutes);
+app.use(thresholdRoutes);
 app.use(userRoutes);
 
 app.get("/", (_req, res) => {
