@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ledRoutes from "./routes/ledRoutes.js";
 import thresholdRoutes from "./routes/thresholdRoutes.js";
+import eventsRoutes from "./routes/eventsRoutes.js";
 import { requestLogger } from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import sequelize from "./config/database.js";
@@ -38,6 +39,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(authRoutes);
 app.use(ledRoutes);
 app.use(thresholdRoutes);
+app.use(eventsRoutes);
 app.use(userRoutes);
 
 app.get("/", (_req, res) => {
@@ -73,9 +75,8 @@ async function seedInitialUsers() {
   }
 }
 
-// ============================================
-// Démarrage
-// ============================================
+export default app;
+
 try {
   await sequelize.authenticate();
   console.log("Connexion à la base de données réussie.");
@@ -91,3 +92,4 @@ try {
   console.error("Erreur de connexion à la base de données:", err);
   process.exit(1);
 }
+
