@@ -1,14 +1,15 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from "sequelize";
 import sequelize from "../config/database.js";
 
-export type UserRole = "student" | "teacher";
+// On définit les rôles possibles si besoin
+export type UserRole = "student" | "teacher" | "admin";
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
-  declare nom: string;
-  declare prenom: string;
-  declare role: UserRole;
-  declare isActive: boolean;
+  // On déclare les nouveaux champs pour TypeScript
+  declare email: string;
+  declare password_hash: string;
+  declare role: CreationOptional<UserRole>;
 }
 
 User.init(
@@ -18,11 +19,12 @@ User.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    nom: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true, // L'email doit être unique
     },
-    prenom: {
+    password_hash: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -31,17 +33,13 @@ User.init(
       allowNull: false,
       defaultValue: "student",
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
   },
   {
     sequelize,
     modelName: "User",
-    tableName: "users",
-    timestamps: false,
+    tableName: "users", // Doit correspondre au nom dans db.sql
+    timestamps: true,   // Active createdAt et updatedAt (présents dans ton SQL)
+    underscored: true,  // Important car ton SQL utilise password_hash (snake_case)
   }
 );
 
