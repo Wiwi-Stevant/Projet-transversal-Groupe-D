@@ -9,15 +9,11 @@ services:
       - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
     ports:
       - "80:80"
-      - "443:443"
-      - "8080:8080"   # Dashboard interne (à restreindre)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - apiReverseProx
       - webReverseProx
       - filebeatDMZ
 
@@ -33,8 +29,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`site.mondomaine.com`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.routers.web.entrypoints=web"
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.13.0
@@ -51,20 +46,14 @@ services:
       - traefik
       - web
 
-  # NTP Relay (UNIQUEMENT si DMZ ne peut pas joindre le LAN en UDP 123)
   ntp_relay:
     image: cturra/ntp
     container_name: ntp_relay_dmz
     restart: always
-    network_mode: host   # NTP = UDP 123 → host mode obligatoire
+    network_mode: host
     environment:
       - NTP_SERVERS=<IP_NTP_LAN>
-    # À activer seulement si nécessaire
-    # networks:
-    #   - dmzNtp
 
 networks:
-  apiReverseProx:
   webReverseProx:
   filebeatDMZ:
-  # dmzNtp:   # seulement si tu actives le relay
