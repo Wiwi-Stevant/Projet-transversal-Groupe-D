@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import bcrypt from "bcrypt"; // Importé pour le seed
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import ledRoutes from "./routes/ledRoutes.js";
 import { requestLogger } from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import sequelize from "./config/database.js";
@@ -22,7 +23,7 @@ app.use(cors({
   origin: "http://localhost:5173", // Ton port Frontend Vite
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 app.use(express.json());
@@ -32,6 +33,7 @@ app.use(express.static("public"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(authRoutes);
+app.use(ledRoutes);
 app.use(userRoutes);
 
 app.get("/", (_req, res) => {
@@ -44,31 +46,38 @@ app.use(errorHandler);
 // FONCTION DE SEED (Avec hachage dynamique)
 // ============================================
 async function seedInitialUsers() {
-  const count = await User.count();
+  try {
+    const count = await User.count();
 
-  if (count > 0) {
-    console.log("Des utilisateurs existent déjà, pas de seeding.");
-    return;
-  }
-
-  // On crée un hash frais pour "password123"
-  const saltRounds = 10;
-  const hashedPass = await bcrypt.hash("password123", saltRounds);
-
-  await User.bulkCreate([
-    { 
-      email: "jean.dupont@test.com", 
-      password_hash: hashedPass, 
-      role: "student" 
-    },
-    { 
-      email: "sophie.martin@test.com", 
-      password_hash: hashedPass, 
-      role: "student" 
+    if (count > 0) {
+      console.log("Des utilisateurs existent déjà, pas de seeding.");
+      return;
     }
-  ]);
 
-  console.log("✅ Utilisateurs de démonstration insérés avec succès.");
+    // On crée un hash frais pour "password123"
+    const saltRounds = 10;
+    const hashedPass = await bcrypt.hash("password123", saltRounds);
+
+    await User.bulkCreate([
+      {
+        email: "jean.dupont@test.com",
+        password_hash: hashedPass,
+        role: "student",
+      },
+      {
+        email: "sophie.martin@test.com",
+        password_hash: hashedPass,
+        role: "student",
+      },
+    ]);
+
+    console.log("✅ Utilisateurs de démonstration insérés avec succès.");
+  } catch (err) {
+    console.warn(
+      "Seed utilisateurs ignoré ou échec insertion :",
+      err instanceof Error ? err.message : err,
+    );
+  }
 }
 
 // ============================================
@@ -78,10 +87,10 @@ try {
   await sequelize.authenticate();
   console.log("Connexion à la base de données réussie.");
 
-  // Utilise { force: true } UNE SEULE FOIS pour réinitialiser si besoin, 
+  // Utilise { force: true } UNE SEULE FOIS pour réinitialiser si besoin,
   // puis remet à { force: false } ou vide.
   await sequelize.sync();
-  
+
   await seedInitialUsers();
 
   app.listen(port, () => {
