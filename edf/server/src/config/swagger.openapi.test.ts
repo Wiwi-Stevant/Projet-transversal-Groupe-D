@@ -25,5 +25,6 @@ test("US-2.7 — documentation OpenAPI : spec valide et chemins exposés documen
   assert.ok(paths["/api/threshold"]?.get);
   assert.ok(paths["/api/threshold"]?.post);
   assert.ok(paths["/api/users"]?.get);
+  assert.ok(paths["/api/auth/register"]?.post);
   assert.ok(paths["/api/auth/login"]?.post);
 });

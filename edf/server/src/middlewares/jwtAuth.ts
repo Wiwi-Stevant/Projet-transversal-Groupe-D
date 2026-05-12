@@ -2,51 +2,57 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { HttpError } from "../services/userService.js";
 
-/**
- * Extension du type Request pour ajouter la propriété user
- */
 declare global {
   namespace Express {
     interface Request {
-      user?: jwt.JwtPayload & { id: number; username: string; role: string };
+      user?: { id: number; email: string };
     }
   }
 }
 
 /**
- * JWT Authentication Middleware
- * RFC 7519 - https://tools.ietf.org/html/rfc7519
- *
- * Format: Authorization: Bearer <token>
+ * JWT — Authorization: Bearer &lt;access_token&gt;
  */
-export const jwtAuth = (req: Request, res: Response, next: NextFunction) => {
+export const jwtAuth = (req: Request, _res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
-  // 1. Vérifier que l'en-tête Authorization existe
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new HttpError(401, "Authorization header manquant ou format invalide.");
   }
 
-  // 2. Extraire le token (position 7 = "Bearer ".length)
   const token = authHeader.substring(7);
 
-  // 3. Vérifier et décoder le token
   try {
     const accessSecret = process.env.JWT_ACCESS_SECRET;
     if (!accessSecret) {
       throw new Error("JWT_ACCESS_SECRET non configuré");
     }
 
-    const decoded = jwt.verify(token, accessSecret);
-    req.user = decoded as jwt.JwtPayload & { id: number; username: string; role: string };
+    const decoded = jwt.verify(token, accessSecret) as jwt.JwtPayload & {
+      id?: number;
+      email?: string;
+    };
+
+    const idRaw = decoded.id ?? decoded.sub;
+    const id = typeof idRaw === "string" ? Number(idRaw) : Number(idRaw);
+    const email = decoded.email;
+
+    if (!Number.isFinite(id) || typeof email !== "string" || !email) {
+      throw new HttpError(403, "Token invalide.");
+    }
+
+    req.user = { id, email };
     next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      throw new HttpError(401, "Token expiré. Veuillez vous reconnecter.");
-    } else if (error instanceof jwt.JsonWebTokenError) {
-      throw new HttpError(403, "Token invalide.");
-    } else {
+    if (error instanceof HttpError) {
       throw error;
     }
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new HttpError(401, "Token expiré. Veuillez vous reconnecter.");
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new HttpError(403, "Token invalide.");
+    }
+    throw error;
   }
 };

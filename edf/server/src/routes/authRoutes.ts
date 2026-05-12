@@ -85,9 +85,9 @@ router.get(
 
 /**
  * @swagger
- * /api/auth/login:
+ * /api/auth/register:
  *   post:
- *     summary: Authentification et génération des tokens JWT
+ *     summary: Inscription (mot de passe hashé bcrypt en base) — US-3.2
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -95,13 +95,43 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [email, password]
  *             properties:
- *               username:
+ *               email:
  *                 type: string
- *                 example: "student"
+ *                 format: email
  *               password:
  *                 type: string
- *                 example: "password123"
+ *                 minLength: 8
+ *     responses:
+ *       201:
+ *         description: Compte créé
+ *       400:
+ *         description: Données invalides
+ *       409:
+ *         description: E-mail déjà utilisé
+ */
+router.post("/api/auth/register", asyncHandler(authController.register));
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Connexion JWT (access token + cookie refresh) — US-3.3
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Authentification réussie
@@ -114,6 +144,11 @@ router.get(
  *                   type: string
  *                 user:
  *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     email:
+ *                       type: string
  *       401:
  *         description: Identifiants invalides
  */

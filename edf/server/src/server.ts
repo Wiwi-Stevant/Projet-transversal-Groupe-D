@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
-import bcrypt from "bcrypt"; // Importé pour le seed
+import bcrypt from "bcrypt";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ledRoutes from "./routes/ledRoutes.js";
@@ -18,14 +18,16 @@ const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
 // ============================================
-// CONFIGURATION CORS (Crucial pour le login)
+// CONFIGURATION CORS (frontend Vite)
 // ============================================
-app.use(cors({
-  origin: "http://localhost:5173", // Ton port Frontend Vite
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -45,7 +47,7 @@ app.get("/", (_req, res) => {
 app.use(errorHandler);
 
 // ============================================
-// FONCTION DE SEED (Avec hachage dynamique)
+// Seed démo (schéma PostgreSQL users)
 // ============================================
 async function seedInitialUsers() {
   try {
@@ -56,41 +58,28 @@ async function seedInitialUsers() {
       return;
     }
 
-    // On crée un hash frais pour "password123"
-    const saltRounds = 10;
-    const hashedPass = await bcrypt.hash("password123", saltRounds);
+    const password_hash = await bcrypt.hash("password123", 10);
+    await User.create({
+      email: "seed.demo@edf.local",
+      password_hash,
+    });
 
-    await User.bulkCreate([
-      {
-        email: "jean.dupont@test.com",
-        password_hash: hashedPass,
-        role: "student",
-      },
-      {
-        email: "sophie.martin@test.com",
-        password_hash: hashedPass,
-        role: "student",
-      },
-    ]);
-
-    console.log("✅ Utilisateurs de démonstration insérés avec succès.");
+    console.log("Utilisateur de démonstration inséré (seed.demo@edf.local / password123).");
   } catch (err) {
     console.warn(
-      "Seed utilisateurs ignoré ou échec insertion :",
+      "Seed utilisateurs ignoré (schéma ou contraintes PostgreSQL).",
       err instanceof Error ? err.message : err,
     );
   }
 }
 
 // ============================================
-// DEMARRAGE DU SERVEUR
+// Démarrage
 // ============================================
 try {
   await sequelize.authenticate();
   console.log("Connexion à la base de données réussie.");
 
-  // Utilise { force: true } UNE SEULE FOIS pour réinitialiser si besoin,
-  // puis remet à { force: false } ou vide.
   await sequelize.sync();
 
   await seedInitialUsers();
