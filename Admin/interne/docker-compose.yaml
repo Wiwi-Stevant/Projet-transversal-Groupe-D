@@ -1,0 +1,126 @@
+version: "3.9"
+
+services:
+  # -------------------------
+  # BASE DE DONNÉES
+  # -------------------------
+  db:
+    image: postgres:16
+    container_name: postgres_lan
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Gougougagaklemdpdefoula
+      POSTGRES_DB: EdfDb
+    volumes:
+      - Dbdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - dbapi
+
+  # -------------------------
+  # API BACKEND
+  # -------------------------
+  api:
+    image: image_api
+    container_name: api_lan
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Gougougagaklemdpdefoula
+      POSTGRES_DB: EdfDb
+    depends_on:
+      - db
+    networks:
+      - dbapi
+      - apiReverseProx   # pour que Traefik DMZ puisse y accéder
+
+  # -------------------------
+  # ELK STACK
+  # -------------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - logNet
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.0
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"   # Filebeat DMZ + LAN
+    networks:
+      - logNet
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    container_name: kibana
+    ports:
+      - "5601:5601"   # accès interne uniquement
+    networks:
+      - logNet
+    depends_on:
+      - elasticsearch
+
+  # -------------------------
+  # FILEBEAT LAN
+  # -------------------------
+  filebeat_lan:
+    image: docker.elastic.co/beats/filebeat:8.13.0
+    container_name: filebeat_lan
+    user: root
+    restart: always
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./filebeat_lan.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - logNet
+    depends_on:
+      - logstash
+
+  # -------------------------
+  # DNS INTERNE (BIND)
+  # -------------------------
+  bind:
+    image: internetsystemsconsortium/bind9:9.18
+    container_name: bind_internal
+    restart: always
+    volumes:
+      - ./bind/named.conf:/etc/bind/named.conf
+      - ./bind/zones:/etc/bind/zones
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    networks:
+      - lanDns
+
+  # -------------------------
+  # NTP INTERNE
+  # -------------------------
+  ntp:
+    image: cturra/ntp
+    container_name: ntp_lan
+    restart: always
+    network_mode: host   # NTP = UDP 123 → host mode obligatoire
+    environment:
+      - NTP_SERVERS=0.be.pool.ntp.org,1.be.pool.ntp.org
+
+volumes:
+  Dbdata:
+  esdata:
+
+networks:
+  dbapi:
+  apiReverseProx:
+  logNet:
+  lanDns:
