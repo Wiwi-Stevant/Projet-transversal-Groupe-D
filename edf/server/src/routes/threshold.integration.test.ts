@@ -28,5 +28,11 @@ test("US-2.6 — GET/POST /api/threshold : persistance activity_threshold dans c
       return;
     }
     throw err;
+  } finally {
+    try {
+      await upsertThreshold(100);
+    } catch {
+      /* remettre la valeur seed pour les autres tests (US-1.3) */
+    }
   }
 });

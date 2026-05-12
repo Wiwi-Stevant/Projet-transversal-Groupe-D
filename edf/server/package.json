@@ -5,7 +5,7 @@
   "description": "backend_TP01",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && node --test dist/middlewares/checkIdParam.test.js dist/db/seed.integration.test.js dist/routes/led.integration.test.js dist/routes/threshold.integration.test.js",
+    "test": "npm run build && node --test --test-concurrency=1 dist/middlewares/checkIdParam.test.js dist/db/seed.integration.test.js dist/routes/led.integration.test.js dist/routes/threshold.integration.test.js dist/config/swagger.openapi.test.js",
     "build": "tsc",
     "start": "node --dns-result-order=ipv4first dist/server.js",
     "dev": "tsx watch src/server.ts"
