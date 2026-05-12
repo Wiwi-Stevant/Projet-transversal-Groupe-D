@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
+import bcrypt from "bcrypt";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ledRoutes from "./routes/ledRoutes.js";
@@ -41,16 +42,16 @@ async function seedInitialUsers() {
       return;
     }
 
-    await User.bulkCreate([
-      { nom: "Dupont", prenom: "Jean", role: "student", isActive: true },
-      { nom: "Martin", prenom: "Sophie", role: "student", isActive: false },
-      { nom: "Durand", prenom: "Claire", role: "teacher", isActive: true },
-    ]);
+    const password_hash = await bcrypt.hash("password123", 10);
+    await User.create({
+      email: "seed.demo@edf.local",
+      password_hash,
+    });
 
-    console.log("Utilisateurs de démonstration insérés en base.");
+    console.log("Utilisateur de démonstration inséré (seed.demo@edf.local / password123).");
   } catch (err) {
     console.warn(
-      "Seed Sequelize users ignoré (schéma PostgreSQL edf/db.sql ≠ modèle TP User).",
+      "Seed utilisateurs ignoré (schéma ou contraintes PostgreSQL).",
       err instanceof Error ? err.message : err,
     );
   }

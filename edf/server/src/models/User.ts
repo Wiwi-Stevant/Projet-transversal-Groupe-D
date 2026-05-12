@@ -1,48 +1,39 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from "sequelize";
 import sequelize from "../config/database.js";
 
-export type UserRole = "student" | "teacher";
-
+/**
+ * Aligné sur `edf/db.sql` : users (email, password_hash, timestamps).
+ */
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
-  declare nom: string;
-  declare prenom: string;
-  declare role: UserRole;
-  declare isActive: boolean;
+  declare email: string;
+  declare password_hash: string;
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       autoIncrement: true,
       primaryKey: true,
     },
-    nom: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
-    prenom: {
-      type: DataTypes.STRING,
+    password_hash: {
+      type: DataTypes.TEXT,
       allowNull: false,
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "student",
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
     },
   },
   {
     sequelize,
     modelName: "User",
     tableName: "users",
-    timestamps: false,
-  }
+    timestamps: true,
+    underscored: true,
+  },
 );
 
 export default User;

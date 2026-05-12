@@ -5,7 +5,7 @@
   "description": "backend_TP01",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && node --test --test-concurrency=1 dist/middlewares/checkIdParam.test.js dist/db/seed.integration.test.js dist/routes/led.integration.test.js dist/routes/threshold.integration.test.js dist/config/swagger.openapi.test.js",
+    "test": "npm run build && node --test --test-concurrency=1 dist/middlewares/checkIdParam.test.js dist/db/seed.integration.test.js dist/routes/led.integration.test.js dist/routes/threshold.integration.test.js dist/routes/auth.integration.test.js dist/config/swagger.openapi.test.js",
     "build": "tsc",
     "start": "node --dns-result-order=ipv4first dist/server.js",
     "dev": "tsx watch src/server.ts"
@@ -17,6 +17,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/express-serve-static-core": "^5.1.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.5.0",
     "@types/pg": "^8.20.0",
     "@types/swagger-jsdoc": "^6.0.4",
@@ -27,6 +28,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "@types/http-auth": "^4.1.4",
     "@types/jsonwebtoken": "^9.0.10",
     "cookie-parser": "^1.4.7",

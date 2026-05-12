@@ -1,137 +1,93 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import * as authService from "../services/authService.js";
 import { HttpError } from "../services/userService.js";
 
 /**
- * Utilisateur de demo (pour l'exercice)
+ * POST /api/auth/register — US-3.2
  */
-const demoUser = {
-  id: 1,
-  username: "student",
-  password: "password123",
-  role: "admin",
+export const register = async (req: Request, res: Response) => {
+  const user = await authService.registerUser(req.body?.email, req.body?.password);
+  res.status(201).json({ user });
 };
 
 /**
- * Crée un Access Token (courte durée - 15 minutes)
- */
-const createAccessToken = () => {
-  const accessSecret = process.env.JWT_ACCESS_SECRET;
-  if (!accessSecret) {
-    throw new Error("JWT_ACCESS_SECRET non configuré");
-  }
-
-  return jwt.sign(
-    {
-      id: demoUser.id,
-      username: demoUser.username,
-      role: demoUser.role,
-    },
-    accessSecret,
-    { expiresIn: "15m" }
-  );
-};
-
-/**
- * Crée un Refresh Token (longue durée - 7 jours)
- */
-const createRefreshToken = () => {
-  const refreshSecret = process.env.JWT_REFRESH_SECRET;
-  if (!refreshSecret) {
-    throw new Error("JWT_REFRESH_SECRET non configuré");
-  }
-
-  return jwt.sign(
-    {
-      id: demoUser.id,
-      username: demoUser.username,
-    },
-    refreshSecret,
-    { expiresIn: "7d" }
-  );
-};
-
-/**
- * POST /api/auth/login
- * Authentifie l'utilisateur et retourne les tokens
+ * POST /api/auth/login — US-3.3 (JWT access + refresh cookie)
  */
 export const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body ?? {};
 
-  // Validation simple
-  if (!username || !password) {
-    throw new HttpError(400, "Username et password requis.");
-  }
+  const { user, accessToken, refreshToken } = await authService.loginWithTokens(email, password);
 
-  // Vérifier les identifiants contre l'utilisateur de demo
-  if (username !== demoUser.username || password !== demoUser.password) {
-    throw new HttpError(401, "Identifiants invalides.");
-  }
-
-  // Générer les tokens
-  const accessToken = createAccessToken();
-  const refreshToken = createRefreshToken();
-
-  // Définir le Refresh Token dans un cookie HttpOnly
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  // Retourner l'Access Token en JSON
   res.status(200).json({
     accessToken,
-    user: {
-      id: demoUser.id,
-      username: demoUser.username,
-      role: demoUser.role,
-    },
+    user: { id: user.id, email: user.email },
   });
 };
 
 /**
  * POST /api/auth/refresh
- * Rafraîchit l'Access Token en utilisant le Refresh Token
  */
 export const refresh = async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+  const { refreshToken } = req.body ?? {};
 
-  // Validation
-  if (!refreshToken) {
+  if (!refreshToken || typeof refreshToken !== "string") {
     throw new HttpError(400, "Refresh token requis dans le corps de la requête.");
   }
 
-  // Vérifier le Refresh Token
+  const refreshSecret = process.env.JWT_REFRESH_SECRET;
+  if (!refreshSecret) {
+    throw new Error("JWT_REFRESH_SECRET non configuré");
+  }
+
   try {
-    const refreshSecret = process.env.JWT_REFRESH_SECRET;
-    if (!refreshSecret) {
-      throw new Error("JWT_REFRESH_SECRET non configuré");
+    const decoded = jwt.verify(refreshToken, refreshSecret) as jwt.JwtPayload & {
+      id?: number;
+      email?: string;
+    };
+
+    const idRaw = decoded.id ?? decoded.sub;
+    const id = typeof idRaw === "string" ? Number(idRaw) : Number(idRaw);
+    if (!Number.isFinite(id)) {
+      throw new HttpError(403, "Refresh token invalide.");
     }
 
-    jwt.verify(refreshToken, refreshSecret);
-
-    // Générer un nouvel Access Token
-    const newAccessToken = createAccessToken();
-
-    res.status(200).json({
-      accessToken: newAccessToken,
-    });
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      throw new HttpError(401, "Refresh token expiré. Reconnexion obligatoire.");
-    } else if (error instanceof jwt.JsonWebTokenError) {
+    const user = await User.findByPk(id);
+    if (!user || user.email !== decoded.email) {
       throw new HttpError(403, "Refresh token invalide.");
-    } else {
+    }
+
+    const payload: authService.AuthUserPayload = {
+      id: Number(user.id),
+      email: user.email,
+    };
+
+    const newAccessToken = authService.createAccessToken(payload);
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    if (error instanceof HttpError) {
       throw error;
     }
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new HttpError(401, "Refresh token expiré. Reconnexion obligatoire.");
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new HttpError(403, "Refresh token invalide.");
+    }
+    throw error;
   }
 };
 
 /**
  * GET /api/profile
- * Route protégée - retourne les données du profil utilisateur
  */
 export const getProfile = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -139,11 +95,10 @@ export const getProfile = async (req: Request, res: Response) => {
   }
 
   res.status(200).json({
-    message: `Bienvenue ${req.user.username}!`,
+    message: `Bienvenue ${req.user.email}`,
     user: {
       id: req.user.id,
-      username: req.user.username,
-      role: req.user.role,
+      email: req.user.email,
     },
   });
 };
