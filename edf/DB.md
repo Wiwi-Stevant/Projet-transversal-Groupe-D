@@ -2,18 +2,20 @@
 
 ## Lancer PostgreSQL
 
+Depuis la racine du repo :
+
 ```bash
 docker compose -f docker-compose.db.yml up -d
 ```
 
-## Vérifier la DB 
+## Vérifier que la DB est prête
 
 ```bash
 docker compose -f docker-compose.db.yml ps
 docker logs edf_postgres
 ```
 
-## Connexion 
+## Connexion (depuis ta machine)
 
 - Host: `localhost`
 - Port: `${POSTGRES_PORT}` (par défaut `5432`)
@@ -24,7 +26,8 @@ docker logs edf_postgres
 ## Initialisation du schéma
 
 Le schéma est exécuté automatiquement au **premier** démarrage si le volume est vide via `edf/db.sql` monté dans `/docker-entrypoint-initdb.d/`.
-(perte des données) :
+
+Si tu veux réinitialiser (perte des données) :
 
 ```bash
 docker compose -f docker-compose.db.yml down -v
