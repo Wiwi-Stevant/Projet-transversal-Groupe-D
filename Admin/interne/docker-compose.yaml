@@ -41,7 +41,7 @@ services:
     image: docker.elastic.co/logstash/logstash:8.13.0
     container_name: logstash
     volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./SYSTEM-LOG/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "5044:5044"   # Filebeat DMZ + LAN
     networks:
