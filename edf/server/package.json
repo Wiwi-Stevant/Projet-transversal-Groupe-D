@@ -5,7 +5,7 @@
   "description": "backend_TP01",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && node --test dist/middlewares/checkIdParam.test.js",
+    "test": "npm run build && node --test dist/middlewares/checkIdParam.test.js dist/db/seed.integration.test.js",
     "build": "tsc",
     "start": "node --dns-result-order=ipv4first dist/server.js",
     "dev": "tsx watch src/server.ts"
@@ -18,6 +18,7 @@
     "@types/express": "^5.0.6",
     "@types/express-serve-static-core": "^5.1.1",
     "@types/node": "^25.5.0",
+    "@types/pg": "^8.20.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "sequelize-cli": "^6.6.5",
