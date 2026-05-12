@@ -12,6 +12,7 @@ services:
       - edf_postgres_data:/var/lib/postgresql/data
       # Initialise le schéma au 1er démarrage (si volume vide)
       - ./edf/db.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./edf/seed.sql:/docker-entrypoint-initdb.d/002_seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s

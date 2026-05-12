@@ -33,3 +33,11 @@ Si tu veux réinitialiser (perte des données) :
 docker compose -f docker-compose.db.yml down -v
 docker compose -f docker-compose.db.yml up -d
 ```
+
+## Seed de données de test (US-1.3)
+
+Au premier démarrage avec volume vide, après le schéma (`edf/db.sql`), le fichier `edf/seed.sql` est appliqué automatiquement (`002_seed.sql`).
+
+Comptes créés (mot de passe pour tests locaux : `edf-seed`) : `demo@edf.local`, `admin@edf.local`. Des lignes `events` et `config` sont aussi insérées.
+
+Pour vérifier côté backend : depuis `edf/server`, avec PostgreSQL qui tourne (`docker compose -f docker-compose.db.yml up -d`), lancer `npm test` — le test « US-1.3 » interroge la base ; sans Postgres il est ignoré (skip).
