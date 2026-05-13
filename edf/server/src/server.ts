@@ -14,6 +14,8 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import sequelize from "./config/database.js";
 import User from "./models/User.js";
 import { swaggerSpec } from "./config/swagger.js";
+import { initMqtt } from "./services/mqttService.js";
+import eventRouter from "./routes/eventRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -35,7 +37,7 @@ app.use(cookieParser());
 app.use(requestLogger);
 app.use(express.static("public"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
+app.use(eventRouter);
 app.use(authRoutes);
 app.use(ledRoutes);
 app.use(thresholdRoutes);
@@ -81,8 +83,18 @@ try {
   await sequelize.authenticate();
   console.log("Connexion à la base de données réussie.");
 
+<<<<<<< HEAD
   await sequelize.sync();
 
+=======
+  // Utilise { force: true } UNE SEULE FOIS pour réinitialiser si besoin, 
+  // puis remet à { force: false } ou vide.
+  await sequelize.sync({ force: true }); 
+  console.log("Base de données synchronisée (Tables recréées)");
+  const [results] = await sequelize.query("SELECT current_database(), current_schema(), current_user;");
+  console.log("📍 Je suis connecté à :", results[0]);
+  initMqtt();
+>>>>>>> dev_02
   await seedInitialUsers();
 
   app.listen(port, () => {
