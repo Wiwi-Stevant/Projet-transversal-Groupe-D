@@ -22,20 +22,20 @@ services:
   # -------------------------
   # API BACKEND
   # -------------------------
-  api:
-      image: ./api:latest
-      container_name: api_srv           
-      build: ./api                    
-      depends_on:
-        db:
-          condition: service_healthy 
-      environment:
-        DATABASE_URL: postgres://postgres:postgres@db:5432/edf
-      networks:
-        - lan
-      expose:
-        - "3000"                      
-      restart: unless-stopped
+#  api:
+#      image: ./api:latest
+#      container_name: api_srv           
+#      build: ./api                    
+#      depends_on:
+#        db:
+#          condition: service_healthy 
+#      environment:
+#        DATABASE_URL: postgres://postgres:postgres@db:5432/edf
+#      networks:
+#        - lan
+#      expose:
+#        - "3000"                      
+#      restart: unless-stopped
         
 
   # -------------------------
@@ -144,6 +144,14 @@ services:
       - logNet
     depends_on:
       - logstash
+
+  dhcp:
+    image: networkboot/dhcpd
+    container_name: dhcp
+    network_mode: "host" # Indispensable pour capter les requêtes DHCP
+    volumes:
+      - ./dhcpd.conf:/data/dhcpd.conf
+    restart: unless-stopped
 
 volumes:
   Dbdata:
