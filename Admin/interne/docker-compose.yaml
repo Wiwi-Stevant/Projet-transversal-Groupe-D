@@ -147,7 +147,7 @@ services:
 
   dhcp:
     image: networkboot/dhcpd
-    container_name: dhcp
+    container_name: dhcp_interne
     network_mode: "host" # Indispensable pour capter les requêtes DHCP
     volumes:
       - ./dhcpd.conf:/data/dhcpd.conf
