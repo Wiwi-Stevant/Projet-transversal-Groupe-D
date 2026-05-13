@@ -1,10 +1,22 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { type EventData } from './EventList';
 
-export default function StatsDashboard({ events }: { events: EventData[] }) {
-  // Séparation par Raspberry
+// Interface unique pour toute l'application
+export interface EventData {
+  id: number;
+  type: string;
+  value: string;
+  device_id: string;
+  created_at: string; // Nom exact dans ta DB Postgres
+}
+
+interface StatsDashboardProps {
+  events: EventData[];
+}
+
+export default function StatsDashboard({ events }: StatsDashboardProps) {
+  // Séparation par Raspberry (Utilisation des IDs de ta DB)
   const rpi1 = events.filter(e => e.device_id === 'pico_w_001').slice(0, 5);
-  const rpi2 = events.filter(e => e.device_id === 'pico_fictive_002').slice(0, 5);
+  const rpi2 = events.filter(e => e.device_id === 'pico_fictive_002' || e.device_id === 'FICTIVE 02').slice(0, 5);
 
   // Données du graphique (7 derniers jours)
   const chartData = () => {
@@ -16,8 +28,14 @@ export default function StatsDashboard({ events }: { events: EventData[] }) {
 
     return days.map(date => ({
       name: date,
-      Salon: events.filter(e => e.device_id === 'pico_w_001' && new Date(e.createdAt).toLocaleDateString('fr-FR') === date).length,
-      Cuisine: events.filter(e => e.device_id === 'pico_fictive_002' && new Date(e.createdAt).toLocaleDateString('fr-FR') === date).length,
+      Salon: events.filter(e => 
+        e.device_id === 'pico_w_001' && 
+        new Date(e.created_at).toLocaleDateString('fr-FR') === date
+      ).length,
+      Cuisine: events.filter(e => 
+        (e.device_id === 'pico_fictive_002' || e.device_id === 'FICTIVE 02') && 
+        new Date(e.created_at).toLocaleDateString('fr-FR') === date
+      ).length,
     }));
   };
 
@@ -33,7 +51,7 @@ export default function StatsDashboard({ events }: { events: EventData[] }) {
             <tr key={e.id} className="hover:bg-gray-50">
               <td className="p-3 font-semibold text-gray-700">{e.type.toUpperCase()}</td>
               <td className="p-3 text-gray-400 text-xs text-right">
-                {new Date(e.createdAt).toLocaleTimeString('fr-FR')}
+                {new Date(e.created_at).toLocaleTimeString('fr-FR')}
               </td>
             </tr>
           )) : <tr><td className="p-4 text-center text-gray-400 italic">Aucune donnée</td></tr>}
