@@ -5,19 +5,19 @@ services:
   # BASE DE DONNÉES
   #test V
   # -------------------------
-  db:
-    image: postgres:16
-    container_name: postgres_lan
-    restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: Gougougagaklemdpdefoula
-      POSTGRES_DB: EdfDb
-    volumes:
-      - Dbdata:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d
-    networks:
-      - dbapi
+#  db:
+#    image: postgres:16
+#    container_name: postgres_lan
+#    restart: always
+#    environment:
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: Gougougagaklemdpdefoula
+#      POSTGRES_DB: EdfDb
+#   volumes:
+#      - Dbdata:/var/lib/postgresql/data
+#      - ./init:/docker-entrypoint-initdb.d
+#   networks:
+#     - dbapi
 
   # -------------------------
   # API BACKEND
