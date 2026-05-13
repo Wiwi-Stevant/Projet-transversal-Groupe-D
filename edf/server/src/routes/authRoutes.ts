@@ -12,7 +12,6 @@ const router = express.Router();
 
 /**
  * @swagger
-<<<<<<< HEAD
  * /api/auth/register:
  *   post:
  *     summary: Inscription (mot de passe hashé bcrypt en base) — US-3.2
@@ -79,30 +78,24 @@ router.post("/api/auth/register", asyncHandler(authController.register));
  *                       type: string
  *       401:
  *         description: Identifiants invalides
-=======
- * /api/auth/login:
- * post:
- * summary: Authentification et génération des tokens JWT
- * tags: [Authentication]
->>>>>>> dev_02
  */
 router.post("/api/auth/login", asyncHandler(authController.login));
 
 /**
  * @swagger
  * /api/auth/refresh:
- * post:
- * summary: Rafraîchir l'Access Token
- * tags: [Authentication]
+ *   post:
+ *     summary: Rafraîchir l'Access Token
+ *     tags: [Authentication]
  */
 router.post("/api/auth/refresh", asyncHandler(authController.refresh));
 
 /**
  * @swagger
  * /api/profile:
- * get:
- * summary: Récupère le profil utilisateur (protégé par JWT)
- * tags: [Authentication]
+ *   get:
+ *     summary: Récupère le profil utilisateur (protégé par JWT)
+ *     tags: [Authentication]
  */
 router.get(
   "/api/profile",

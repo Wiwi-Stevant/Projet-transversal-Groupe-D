@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import EventList, { type EventData } from "./components/EventList";
 import Login from "./components/Login";
-import StatsDashboard from "./components/StatsDashboard";
+import StatsDashboard, { type EventData } from "./components/StatsDashboard";
 
 function App() {
   const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem("userEmail"));
@@ -52,11 +51,9 @@ function App() {
           <p className="text-gray-500">Données consolidées des capteurs Raspberry Pi</p>
         </div>
 
+        {/* Seul le Dashboard est conservé pour le déploiement */}
         <StatsDashboard events={events} />
-
-        <div className="mt-16">
-          <EventList events={events} />
-        </div>
+        
       </main>
     </div>
   );
