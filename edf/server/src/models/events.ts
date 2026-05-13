@@ -2,11 +2,11 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database.js";
 
 class Event extends Model {
-  // On utilise 'declare' pour éviter que TS n'écrase les champs de Sequelize
   declare id: number;
   declare type: string;
   declare value: string;
   declare device_id: string;
+  declare createdAt: Date; // Ajoute la déclaration ici pour TS
 }
 
 Event.init({
@@ -16,8 +16,8 @@ Event.init({
 }, {
   sequelize,
   modelName: "Event",
-  tableName: "events", // On force le nom en minuscule pour pgAdmin
-  underscored: true    // Utilise created_at au lieu de createdAt
+  tableName: "events",
+  underscored: false // <--- On remet à FALSE car on utilise le CamelCase partout
 });
 
 export default Event;
