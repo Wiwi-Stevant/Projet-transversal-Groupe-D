@@ -23,6 +23,7 @@ Le serveur gère la zone lan.interne.
 ## 3. DHCP ET NTP
 
 Ces services utilisent le mode network_mode: host pour interagir directement avec les interfaces physiques de la machine hôte :
+
     - DHCP : Configuration dans ./dhcpd.conf.
     - NTP : Synchronisation via serveurs pool.ntp.org.
 
