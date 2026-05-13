@@ -23,15 +23,20 @@ services:
   # API BACKEND
   # -------------------------
   api:
-      build: ./elec # Ou le chemin vers son dossier
-      container_name: edf_api
+      image: ./api:latest
+      container_name: api_srv           
+      build: ./api                    
       depends_on:
         db:
-          condition: service_healthy # Très important pour attendre que la BDD soit prête !
+          condition: service_healthy 
       environment:
         DATABASE_URL: postgres://postgres:postgres@db:5432/edf
       networks:
-        - lan # Ton réseau interne
+        - lan
+      expose:
+        - "3000"                      
+      restart: unless-stopped
+        
 
   # -------------------------
   # DNS INTERNE (BIND)
@@ -149,5 +154,7 @@ networks:
   apiReverseProx:
   logNet:
   lanDns:
+  lan:
+    external: true
 
 #tous les tests sont faits et renvoient un retour que j'attends des services

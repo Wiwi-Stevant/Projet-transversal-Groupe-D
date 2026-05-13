@@ -55,12 +55,14 @@ services:
       - NTP_SERVERS=<IP_NTP_LAN>
   dhcp:
     image: networkboot/dhcpd
-    container_name: dhcp_server
+    container_name: dhcp
     network_mode: "host" # Indispensable pour capter les requêtes DHCP
     volumes:
       - ./dhcpd.conf:/data/dhcpd.conf
-    restart: always
+    restart: unless-stopped
 
 networks:
   webReverseProx:
   filebeatDMZ:
+  dhcp:
+    external: true  # <--- Ajoute cette ligne
