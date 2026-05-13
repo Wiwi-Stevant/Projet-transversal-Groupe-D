@@ -103,6 +103,21 @@ services:
     environment:
       - NTP_SERVERS=0.be.pool.ntp.org,1.be.pool.ntp.org
 
+    # -------------------------
+  # Reverse Proxy (NGINX)
+  # -------------------------
+  proxy:
+      image: nginx:alpine
+      container_name: reverse_proxy
+      restart: always
+      ports:
+        - "80:80"
+      volumes:
+        - ./proxy/CONF/default.conf:/etc/nginx/conf.d/default.conf:ro
+      networks:
+        - apiReverseProx
+        - lanDns
+
 volumes:
   Dbdata:
   esdata:
