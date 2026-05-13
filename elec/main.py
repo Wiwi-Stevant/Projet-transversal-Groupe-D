@@ -17,6 +17,7 @@ USER='useredf'
 PASSWD='123456789'
 TOPIC_CLICK = b"sensors/data"
 TOPIC_LED = b"sensors/led"
+PORT = 1888
 
 # connection wifi
 def connect_wifi():
@@ -33,7 +34,7 @@ def connect_wifi():
 # connection MQTT
 def connect_mqtt():
     global client
-    client = MQTTClient(CLIENT_ID, MQTT_BROKER, port=1888, user=USER, password=PASSWD)
+    client = MQTTClient(CLIENT_ID, MQTT_BROKER, port=PORT, user=USER, password=PASSWD)
     client.connect()
     print("Connecté au Broker MQTT")
     client.set_callback(mqtt_callback)
@@ -121,3 +122,4 @@ def mainloop():
 
 init()
 mainloop()
+
