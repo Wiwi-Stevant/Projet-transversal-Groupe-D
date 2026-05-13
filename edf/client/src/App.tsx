@@ -6,9 +6,13 @@ function App() {
   const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem("userEmail"));
   const [events, setEvents] = useState<EventData[]>([]);
 
+  // 1. On récupère l'URL configurée dans le .env (Vite utilise import.meta.env)
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
   const fetchEvents = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/events');
+      // 2. On utilise l'URL dynamique ici !
+      const response = await fetch(`${API_URL}/events`);
       if (!response.ok) throw new Error("Erreur serveur");
       const data = await response.json();
       setEvents(data);
@@ -51,9 +55,7 @@ function App() {
           <p className="text-gray-500">Données consolidées des capteurs Raspberry Pi</p>
         </div>
 
-        {/* Seul le Dashboard est conservé pour le déploiement */}
         <StatsDashboard events={events} />
-        
       </main>
     </div>
   );
