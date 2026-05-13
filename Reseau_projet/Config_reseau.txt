@@ -64,6 +64,7 @@ Ip address 192.168.10.254 255.255.255.0
 No shut
 Interface vlan 20 
 Ip address 192.168.20.254 255.255.255.0
+Ip helper-address 192.168.20.1
 No shut
 Interface vlan 30 
 Ip address 192.168.30.254 255.255.255.0
@@ -105,12 +106,31 @@ switchport mode trunk
 switchport trunk allowed vlan 10,30,40
 switchport mode trunk
 
-ip dhcp excluded-address 192.168.20.254
-ip dhcp excluded-address 192.168.20.1 192.168.20.10
-ip dhcp pool POOL_VLAN20_GUEST
-network 192.168.20.0 255.255.255.0
-default-router 192.168.20.254
-dns-server 8.8.8.8
+ip access-list extended GUEST_ISOLATION
+permit udp any any eq bootpc
+permit udp any any eq bootps
+deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255
+
+permit ip 192.168.20.0 0.0.0.255 any
+
+
+interface Vlan 20
+ip access-group GUEST_ISOLATION in
+
+ip access-list extended CLOISON_INTERNET
+
+permit udp any any eq bootpc
+ 
+permit tcp any any established
+permit icmp any any echo-reply
+permit icmp any any time-exceeded
+permit icmp any any unreachable
+deny ip any any
+
+
+interface fa 0/1
+ip access-group CLOISON_INTERNET in
+
 
 S1 :
 hostname S1 
@@ -120,23 +140,24 @@ vtp domain formation
 # EtherChannel vers SW_L3 
 interface range Fa0/1 - 2 
 channel-group 1 mode desirable 
-switchport mode trunk # Port d'accès pour PC30 (ex: VLAN 30 R&D) 
-interface Fa0/3 switchport mode access switchport access vlan 30 spanning-tree portfast
+switchport mode trunk 
+interface Fa0/3 switchport mode access 
+switchport access vlan 30 
+spanning-tree portfast
 
 S2
 
 
 hostname S2
 
-# VTP Configuration
 vtp domain formation
 vtp mode client
 vtp password cisco
 
 interface Fa1/0/1
- switchport mode trunk
+switchport mode trunk
 
 interface Fa1/0/3
- switchport mode access
- switchport access vlan 10
- spanning-tree portfast
+switchport mode access
+switchport access vlan 10
+spanning-tree portfast
