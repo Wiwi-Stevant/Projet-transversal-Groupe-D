@@ -74,7 +74,7 @@ services:
 
     # -------------------------
   # ELK STACK log des données
-  #elasticsearch X
+  #elasticsearch v
   #logstash V
   #kibanaV
   # -------------------------
@@ -115,6 +115,7 @@ services:
 
   # -------------------------
   # FILEBEAT LAN transition des logs Docker vers Logstash
+  #test V
   # -------------------------
   filebeat_lan:
     image: docker.elastic.co/beats/filebeat:8.13.0
@@ -140,4 +141,4 @@ networks:
   logNet:
   lanDns:
 
-#mauvais commit ça devait être la 04 
+#tous les tests sont faits et renvoient un retour que j'attends des services
