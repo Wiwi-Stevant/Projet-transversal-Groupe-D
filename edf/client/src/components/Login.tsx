@@ -10,17 +10,21 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Utilisation de "as any" pour forcer TypeScript à accepter 'env' de Vite
+  const API_URL = (import.meta as any).env.VITE_API_URL;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+      // On utilise l'URL dynamique récupérée du .env.production
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
 
@@ -31,7 +35,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         setError(data.message || "Identifiants incorrects");
       }
     } catch (err) {
-      setError("Erreur de connexion au serveur");
+      console.error("Erreur Login:", err);
+      setError("Erreur de connexion au serveur (Vérifiez l'IP)");
     } finally {
       setLoading(false);
     }
@@ -39,13 +44,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
-      {/* Carte de Login */}
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-700">
         
-        {/* Header de la carte */}
+        {/* Header EDF Style */}
         <div className="bg-gradient-to-br from-blue-900 to-blue-800 p-8 text-center">
-          <div className="inline-block bg-yellow-400 p-3 rounded-2xl mb-4">
-            <div className="w-6 h-6 bg-blue-900 rounded-full"></div>
+          <div className="inline-block bg-yellow-400 p-3 rounded-2xl mb-4 shadow-lg shadow-yellow-500/20">
+            <div className="w-6 h-6 bg-blue-900 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">
             EDF <span className="font-light text-blue-200">Access</span>
@@ -57,33 +61,33 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium border border-red-100 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
+              <span className="w-2 h-2 bg-red-600 rounded-full"></span>
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
               Adresse Email
             </label>
             <input
               type="email"
               required
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              placeholder="jean.dupont@test.com"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900"
+              placeholder="admin@edf.fr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
               Mot de passe
             </label>
             <input
               type="password"
               required
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -93,13 +97,15 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
           >
             {loading ? "Vérification..." : "SE CONNECTER"}
           </button>
 
           <div className="text-center">
-            <span className="text-xs text-slate-400">Identifiants restreints - Groupe D</span>
+            <span className="text-[10px] text-slate-400 uppercase tracking-tighter">
+              Accès réservé au personnel autorisé - Groupe D
+            </span>
           </div>
         </form>
       </div>
