@@ -19,7 +19,7 @@ L'infrastructure est orchestrée via `docker-compose.yaml` avec les services sui
 ## 2. DNS Interne (BIND9)
 Le serveur gère la zone lan.interne.
 
--Fichiers de zone : ./bind/zones/db.lan.interne
+- Fichiers de zone : ./bind/zones/db.lan.interne
 
 ## 3. DHCP ET NTP
 
@@ -36,3 +36,7 @@ Le serveur utilise une segmentation par réseaux Docker isolés pour garantir la
     - logNet : Flux dédié exclusivement à la stack ELK.
     - lanDns : Flux pour la résolution de noms entre services.
     - host : Utilisé pour les services réseau bas niveau (DHCP/NTP).
+
+## Schéma
+
+![alt text](image.png)
