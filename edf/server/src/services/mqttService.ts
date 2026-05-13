@@ -10,7 +10,7 @@ export const initMqtt = () => {
     console.log("✅ Connecté au Broker MQTT");
     
     // Abonnement au topic
-    client.subscribe("sensors/data", (err) => {
+    client.subscribe("sensors/data", (err: Error | null) => {
       if (!err) {
         console.log("📡 Abonné au topic 'sensors/data'");
       } else {
@@ -19,7 +19,7 @@ export const initMqtt = () => {
     });
   });
 
-  client.on("message", async (topic, message) => {
+  client.on("message", async (topic: string, message: Buffer) => {
     try {
       const data = JSON.parse(message.toString());
       console.log(`📩 Message reçu sur ${topic}:`, data);
@@ -37,7 +37,7 @@ export const initMqtt = () => {
     }
   });
 
-  client.on("error", (err) => {
+  client.on("error", (err: Error) => {
     console.error("❌ Erreur de connexion MQTT:", err);
   });
 };

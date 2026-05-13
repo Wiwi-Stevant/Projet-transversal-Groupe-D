@@ -1,9 +1,11 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import bcrypt from "bcrypt";
+import { fileURLToPath } from "url";
+import path from "path";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ledRoutes from "./routes/ledRoutes.js";
@@ -16,6 +18,8 @@ import User from "./models/User.js";
 import { swaggerSpec } from "./config/swagger.js";
 import { initMqtt } from "./services/mqttService.js";
 import eventRouter from "./routes/eventRoutes.js";
+
+dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -79,29 +83,29 @@ async function seedInitialUsers() {
 
 export default app;
 
-try {
-  await sequelize.authenticate();
-  console.log("Connexion à la base de données réussie.");
+export async function startServer() {
+  try {
+    await sequelize.authenticate();
+    console.log("Connexion à la base de données réussie.");
 
-<<<<<<< HEAD
-  await sequelize.sync();
+    await sequelize.sync();
+    initMqtt();
+    await seedInitialUsers();
 
-=======
-  // Utilise { force: true } UNE SEULE FOIS pour réinitialiser si besoin, 
-  // puis remet à { force: false } ou vide.
-  await sequelize.sync({ force: true }); 
-  console.log("Base de données synchronisée (Tables recréées)");
-  const [results] = await sequelize.query("SELECT current_database(), current_schema(), current_user;");
-  console.log("📍 Je suis connecté à :", results[0]);
-  initMqtt();
->>>>>>> dev_02
-  await seedInitialUsers();
+    app.listen(port, () => {
+      console.log(`Serveur en écoute sur le port ${port}`);
+    });
+  } catch (err) {
+    console.error("Erreur de connexion à la base de données:", err);
+    process.exit(1);
+  }
+}
 
-  app.listen(port, () => {
-    console.log(`Serveur en écoute sur le port ${port}`);
-  });
-} catch (err) {
-  console.error("Erreur de connexion à la base de données:", err);
-  process.exit(1);
+const isDirectRun =
+  process.argv[1] !== undefined &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  await startServer();
 }
 
