@@ -53,13 +53,6 @@ services:
     network_mode: host
     environment:
       - NTP_SERVERS=<IP_NTP_LAN>
-  dhcp:
-    image: networkboot/dhcpd
-    container_name: dhcp
-    network_mode: "host" # Indispensable pour capter les requêtes DHCP
-    volumes:
-      - ./dhcpd.conf:/data/dhcpd.conf
-    restart: unless-stopped
 
 networks:
   webReverseProx:
