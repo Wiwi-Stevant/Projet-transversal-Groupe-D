@@ -7,12 +7,14 @@ import utime
 global wlan, client, led, bouton, compteur
 
     # WiFi
-SSID = "iPhone de William"
-PWD = "partage11St"
+SSID = "Tenda_962F10"
+PWD = "123456789"
 
     # MQTT
-MQTT_BROKER = "172.20.10.13"
+MQTT_BROKER = "grp-d.ephec-ti.be"
 CLIENT_ID = "PicoW_Compteur_Click_123456"
+USER='useredf'
+PASSWD='123456789'
 TOPIC_CLICK = b"sensors/data"
 TOPIC_LED = b"sensors/led"
 
@@ -31,9 +33,11 @@ def connect_wifi():
 # connection MQTT
 def connect_mqtt():
     global client
-    client = MQTTClient(CLIENT_ID, MQTT_BROKER)
+    client = MQTTClient(CLIENT_ID, MQTT_BROKER, port=1888, user=USER, password=PASSWD)
     client.connect()
     print("Connecté au Broker MQTT")
+    client.set_callback(mqtt_callback)
+    client.subscribe(TOPIC_LED)
 
 def init():
     global led, bouton, compteur
@@ -100,7 +104,7 @@ def mqtt_callback(topic, msg):
 def mainloop():
     global bouton, led
     while True:
-        #client.check_msg()
+        client.check_msg()
         
         if bouton.value() == 0:
             led.value(1)
@@ -110,10 +114,10 @@ def mainloop():
             utime.sleep(0.3)
 
             while bouton.value() == 0:
+                utime.sleep(0.5)
                 pass
 
             led.value(0)
-        utime.sleep(0.01)
 
 init()
 mainloop()
