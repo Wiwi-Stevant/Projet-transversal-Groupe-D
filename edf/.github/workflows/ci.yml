@@ -1,20 +1,45 @@
-name: Continuous Integration - Tests
+name: CI - Backend API
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - CI/CD
+      - dev
+      - main
+    paths:
+      - "edf/server/**"
+      - "edf/.github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "edf/server/**"
+      - "edf/.github/workflows/ci.yml"
 
 jobs:
-  test-backend:
+  backend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: edf/server
+    env:
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./server
-      - name: Run unit tests
-        run: npm test
-        working-directory: ./server
+          node-version: 22
+          cache: npm
+          cache-dependency-path: edf/server/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Build backend
+        run: npm run build
+
+      - name: Run backend tests with coverage
+        run: npm run test:coverage
 
