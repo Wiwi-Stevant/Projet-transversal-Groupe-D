@@ -36,7 +36,3 @@ Le serveur utilise une segmentation par réseaux Docker isolés pour garantir la
     - logNet : Flux dédié exclusivement à la stack ELK.
     - lanDns : Flux pour la résolution de noms entre services.
     - host : Utilisé pour les services réseau bas niveau (DHCP/NTP).
-
-## Schéma
-
-![alt text](image.png)
