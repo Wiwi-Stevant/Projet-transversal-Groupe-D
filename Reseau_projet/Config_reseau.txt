@@ -1,0 +1,142 @@
+R1 :
+En
+Conf t
+Hostname R1
+access-list 1 permit 192.168.0.0 0.0.255.255
+ip nat inside source list 1 interface FastEthernet0/0 overload 
+ip nat inside source static tcp 192.168.50.1 80 interface fa0/0 80
+ip nat inside source static tcp 192.168.50.1 1883 interface fa0/0 18844
+
+ip route 0.0.0.0 0.0.0.0 10.100.0.254
+
+router rip
+version 2
+no auto-summary
+network 192.168.0.0 
+
+interface Fa0/0
+ip nat outside
+ip address 10.100.0.4 255.255.255.0
+no shut
+
+interface Fa0/1
+ip nat inside 
+ip address 192.168.0.1 255.255.255.252
+no shut 
+
+
+
+
+
+
+Sw_L3
+En
+Conf t
+Hostname Sw_L3
+Ip routing
+Ip route 0.0.0.0 0.0.0.0 192.168.0.1
+Router rip
+Version 2
+no auto-summary
+Network 192.168.0.0
+Network 192.168.10.0
+Network 192.168.20.0
+Network 192.168.30.0
+Network 192.168.40.0
+Network 192.168.50.0
+
+Vlan 10
+Name IT
+Vlan 20
+Name guest
+Vlan 30
+Name HYP
+Vlan 40
+Name RD
+Vlan 50
+Name DMZ
+
+Interface vlan 50 
+Ip address 192.168.50.254 255.255.255.0
+No shut 
+Interface vlan 10
+Ip address 192.168.10.254 255.255.255.0
+No shut
+Interface vlan 20 
+Ip address 192.168.20.254 255.255.255.0
+No shut
+Interface vlan 30 
+Ip address 192.168.30.254 255.255.255.0
+No shut
+Interface vlan 40 
+Ip address 192.168.40.254 255.255.255.0
+No shut
+
+
+Interface  fa0/1 
+No switchport
+Ip address 192.168.0.2 255.255.255.252
+no shut
+
+interface fa0/2
+switchport mode access
+switchport access vlan 50
+no shut
+
+
+interface fa0/3
+switchport mode trunk
+switchport trunk allowed vlan 20
+spanning-tree portfast trunk
+no shut
+
+interface range fa0/5 - 6 
+channel-group 1 mode active
+no shut
+
+interface port-channel 1
+switchport mode trunk
+switchport trunk allowed vlan 10,30,40
+switchport mode trunk
+
+
+interface fa0/4
+switchport mode trunk
+switchport trunk allowed vlan 10,30,40
+switchport mode trunk
+
+ip dhcp excluded-address 192.168.20.254
+ip dhcp excluded-address 192.168.20.1 192.168.20.10
+ip dhcp pool POOL_VLAN20_GUEST
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.254
+dns-server 8.8.8.8
+
+S1 :
+hostname S1 
+vtp domain formation
+ vtp mode client
+ vtp password cisco 
+# EtherChannel vers SW_L3 
+interface range Fa0/1 - 2 
+channel-group 1 mode desirable 
+switchport mode trunk # Port d'accès pour PC30 (ex: VLAN 30 R&D) 
+interface Fa0/3 switchport mode access switchport access vlan 30 spanning-tree portfast
+
+S2
+
+
+hostname S2
+
+# VTP Configuration
+vtp domain formation
+vtp mode client
+vtp password cisco
+
+interface Fa1/0/1
+ switchport mode trunk
+
+interface Fa1/0/3
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
