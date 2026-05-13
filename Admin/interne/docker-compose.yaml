@@ -64,6 +64,9 @@ services:
       networks:
         - apiReverseProx
         - lanDns
+        - logNet
+      depends_on:
+        - kibana
 
     # -------------------------
   # ELK STACK log des données
