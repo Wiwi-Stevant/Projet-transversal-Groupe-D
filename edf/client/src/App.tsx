@@ -7,7 +7,7 @@ function App() {
   const [events, setEvents] = useState<EventData[]>([]);
 
   // 1. On récupère l'URL configurée dans le .env (Vite utilise import.meta.env)
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
   const fetchEvents = async () => {
     try {
