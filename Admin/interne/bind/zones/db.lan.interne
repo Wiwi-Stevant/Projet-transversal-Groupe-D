@@ -1,6 +1,6 @@
 $TTL    604800
 @       IN      SOA     ns1.lan.interne. admin.lan.interne. (
-                     2026051201         ; Serial
+                     2026051301         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
