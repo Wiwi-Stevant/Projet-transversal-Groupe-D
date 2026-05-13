@@ -18,6 +18,7 @@ L'infrastructure est orchestrée via `docker-compose.yaml` avec les services sui
 
 ## 2. DNS Interne (BIND9)
 Le serveur gère la zone lan.interne.
+
 -Fichiers de zone : ./bind/zones/db.lan.interne
 
 ## 3. DHCP ET NTP
