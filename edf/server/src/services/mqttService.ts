@@ -1,19 +1,21 @@
 import mqtt from "mqtt";
 import Event from "../models/events.js";
 
-const brokerUrl = process.env.MQTT_BROKER_URL || "mqtt://127.0.0.1:1883";
+const mqttOptions = {
+  host: process.env.MQTT_HOST || "localhost",
+  port: Number(process.env.MQTT_PORT || 1883),
+  username: process.env.MQTT_USERNAME || "useredf",
+  password: process.env.MQTT_PASSWORD || "123456789",
+};
 
 export const initMqtt = () => {
-  const client = mqtt.connect(brokerUrl);
+  const client = mqtt.connect(mqttOptions);
 
   client.on("connect", () => {
-    console.log("✅ Connecté au Broker MQTT");
-    
-    // Abonnement au topic
+    console.log("🚀 Backend connecté au Docker Mosquitto !");
+
     client.subscribe("sensors/data", (err: Error | null) => {
-      if (!err) {
-        console.log("📡 Abonné au topic 'sensors/data'");
-      } else {
+      if (err) {
         console.error("❌ Erreur d'abonnement:", err);
       }
     });
