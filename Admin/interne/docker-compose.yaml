@@ -3,6 +3,7 @@ version: "3.9"
 services:
   # -------------------------
   # BASE DE DONNÉES
+  #test V
   # -------------------------
   db:
     image: postgres:16
@@ -25,6 +26,7 @@ services:
 
   # -------------------------
   # DNS INTERNE (BIND)
+  #test V
   # -------------------------
   bind:
     image: internetsystemsconsortium/bind9:9.18
@@ -41,6 +43,7 @@ services:
 
   # -------------------------
   # NTP INTERNE
+  #test V
   # -------------------------
   ntp:
     image: cturra/ntp
@@ -52,6 +55,7 @@ services:
 
     # -------------------------
   # Reverse Proxy (NGINX)
+  #test V
   # -------------------------
   proxy:
       image: nginx:alpine
@@ -70,6 +74,9 @@ services:
 
     # -------------------------
   # ELK STACK log des données
+  #elasticsearch X
+  #logstash V
+  #kibanaV
   # -------------------------
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
@@ -130,3 +137,5 @@ networks:
   apiReverseProx:
   logNet:
   lanDns:
+
+#test
